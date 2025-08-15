@@ -9,29 +9,24 @@ namespace Sylpheed.GameFramework
 {
     public sealed class GameInstance : MonoBehaviour
     {
-        private static GameInstance instance;
+        private static GameInstance _instance;
+        
+        [SerializeField] private string _firstScene;
+        [SerializeField] private GameObject _playerPrefab;
 
-        public static Player LocalPlayer
-        {
-            get { return instance.Player; }
-        }
+        public static Player LocalPlayer => _instance.Player;
+        public static GameMode ActiveGameMode => _instance._activeGameMode;
 
-        public static GameMode ActiveGameMode
-        {
-            get { return instance.activeGameMode; }
-        }
-
-        public string FirstScene;
-        public GameObject PlayerPrefab;
-
+        public string FirstScene => _firstScene;
+        public GameObject PlayerPrefab => _playerPrefab;
         public Player Player { get; private set; }
 
-        private GameMode activeGameMode;
+        private GameMode _activeGameMode;
 
         private void Awake()
         {
-            Assert.IsNull(instance, "There can only be one GameInstance");
-            instance = this;
+            Assert.IsNull(_instance, "There can only be one GameInstance");
+            _instance = this;
 
             // Instantiate player
             Assert.IsNotNull(PlayerPrefab, "PlayerPrefab must be set in the inspector");
@@ -44,17 +39,14 @@ namespace Sylpheed.GameFramework
             StartCoroutine(StartTask());
         }
 
-        IEnumerator StartTask()
+        private IEnumerator StartTask()
         {
             yield return null;
             if (!string.IsNullOrEmpty(FirstScene)) yield return LoadGameMode(FirstScene);
         }
 
-        public static T GetActiveGameMode<T>()
-            where T : GameMode
-        {
-            return instance.activeGameMode as T;
-        }
+        public static T GetActiveGameMode<T>() where T : GameMode
+            => _instance._activeGameMode as T;
 
         /// <summary>
         /// Loads the scene for the specified GameMode
@@ -65,19 +57,19 @@ namespace Sylpheed.GameFramework
         /// <returns></returns>
         public static Coroutine LoadGameMode(string gameMode, IDictionary<string, object> data = null)
         {
-            return instance.StartCoroutine(LoadGameModeTask(gameMode, data));
+            return _instance.StartCoroutine(LoadGameModeTask(gameMode, data));
         }
 
-        static IEnumerator LoadGameModeTask(string gameMode, IDictionary<string, object> data)
+        private static IEnumerator LoadGameModeTask(string gameMode, IDictionary<string, object> data)
         {
             Assert.IsFalse(string.IsNullOrEmpty(gameMode), "GameMode id is null");
 
             // Unload active game mode
-            if (instance.activeGameMode)
+            if (_instance._activeGameMode)
             {
-                yield return instance.activeGameMode.Unload();
-                yield return SceneManager.UnloadSceneAsync(instance.activeGameMode.gameObject.scene);
-                instance.activeGameMode = null;
+                yield return _instance._activeGameMode.Unload();
+                yield return SceneManager.UnloadSceneAsync(_instance._activeGameMode.gameObject.scene);
+                _instance._activeGameMode = null;
             }
 
             Resources.UnloadUnusedAssets();
@@ -89,13 +81,13 @@ namespace Sylpheed.GameFramework
             yield return SceneManager.LoadSceneAsync(gameMode, LoadSceneMode.Additive);
 
             // Configure active game mode
-            instance.activeGameMode = FindAnyObjectByType<GameMode>();
-            instance.activeGameMode.Data = data;
+            _instance._activeGameMode = FindAnyObjectByType<GameMode>();
+            _instance._activeGameMode.Data = data;
         }
 
         public static Coroutine LoadFirstMode()
         {
-            return LoadGameMode(instance.FirstScene);
+            return LoadGameMode(_instance.FirstScene);
         }
     }
 }

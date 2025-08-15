@@ -10,8 +10,9 @@ namespace Sylpheed.GameFramework
     public abstract class PlayerState : MonoBehaviour
     {
         [Header("Serialization")]
-        public string SerializationKey;
+        [SerializeField] private string _serializationKey;
 
+        public string SerializationKey => _serializationKey;
         // Should only be modified by the owning Player
         public Player Owner { get; set; }
 

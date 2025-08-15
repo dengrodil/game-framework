@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 using UnityEngine.Assertions;
 using System.Linq;
 
@@ -6,20 +7,22 @@ namespace Sylpheed.GameFramework
 {
     public class ConfigRepository : MonoBehaviour
     {
-        private static ConfigRepository instance;
-
-        public Object[] Configs;
+        private static ConfigRepository _instance;
+        
+        [SerializeField] private Object[] _configs;
+        
+        public IReadOnlyList<Object> Configs => _configs;
 
         private void Awake()
         {
-            Assert.IsNull(instance, "There can only be one ConfigRepository");
-            instance = this;
+            Assert.IsNull(_instance, "There can only be one ConfigRepository");
+            _instance = this;
         }
 
         public static T GetConfig<T>()
             where T : Object
         {
-            T settings = instance.Configs.Where(s => s is T).FirstOrDefault() as T;
+            var settings = _instance._configs.FirstOrDefault(s => s is T) as T;
             Assert.IsNotNull(settings, typeof(T).ToString() + " does not exist");
 
             return settings;

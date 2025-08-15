@@ -13,7 +13,7 @@ namespace Sylpheed.GameFramework
         /// </summary>
         public Player Player { get; set; }
 
-        public static Pawn Local { get { return GameInstance.ActiveGameMode.Pawn; } }
+        public static Pawn Local => GameInstance.ActiveGameMode.Pawn;
     }
 
     public static class PawnExtension

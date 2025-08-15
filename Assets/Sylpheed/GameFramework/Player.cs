@@ -11,17 +11,17 @@ namespace Sylpheed.GameFramework
     {
         public static Player Local => GameInstance.LocalPlayer;
     
-        private Dictionary<System.Type, PlayerState> statesDict = new Dictionary<System.Type, PlayerState>();
-        public IEnumerable<PlayerState> States { get { return statesDict.Values; } }
+        private readonly Dictionary<System.Type, PlayerState> _statesDict = new();
+        public IEnumerable<PlayerState> States => _statesDict.Values;
 
         public bool IsLocal => this == Local;
 
         private void Awake()
         {
             var states = GetComponentsInChildren<PlayerState>();
-            foreach (PlayerState state in states)
+            foreach (var state in states)
             {
-                statesDict[state.GetType()] = state;
+                _statesDict[state.GetType()] = state;
                 state.Owner = this;
             }
         }
@@ -33,11 +33,10 @@ namespace Sylpheed.GameFramework
         /// <returns></returns>
         public T GetState<T>() where T : PlayerState
         {
-            PlayerState obj;
-            if (statesDict.TryGetValue(typeof(T), out obj))
+            if (_statesDict.TryGetValue(typeof(T), out var obj))
             {
                 // Clear registered state if it was destroyed
-                if (!obj) statesDict.Remove(typeof(T));
+                if (!obj) _statesDict.Remove(typeof(T));
             }
 
             return obj as T;
