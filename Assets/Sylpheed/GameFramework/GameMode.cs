@@ -1,9 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Events;
 using UnityEngine.SceneManagement;
-using MEC;
 
 /// <summary>
 /// GameMode handles the rules and lifecycle of a scene
