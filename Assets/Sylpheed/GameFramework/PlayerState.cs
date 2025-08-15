@@ -1,21 +1,24 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-/// <summary>
-/// Persistent data bound to a Player
-/// PlayerState does not get destroyed between scene loads
-/// </summary>
-public abstract class PlayerState : MonoBehaviour
+namespace Sylpheed.GameFramework
 {
-    [Header("Serialization")]
-    public string SerializationKey;
-
-    // Should only be modified by the owning Player
-    public Player Owner { get; set; }
-
-    public T GetSiblingState<T>()
-        where T : PlayerState
+    /// <summary>
+    /// Persistent data bound to a Player
+    /// PlayerState does not get destroyed between scene loads
+    /// </summary>
+    public abstract class PlayerState : MonoBehaviour
     {
-        return Owner.GetState<T>();
+        [Header("Serialization")]
+        public string SerializationKey;
+
+        // Should only be modified by the owning Player
+        public Player Owner { get; set; }
+
+        public T GetSiblingState<T>()
+            where T : PlayerState
+        {
+            return Owner.GetState<T>();
+        }
     }
 }
